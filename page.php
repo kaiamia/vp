@@ -1,6 +1,6 @@
 <?php
 	//loen sisse konfiguratsioonifaili
-	require_once "../config.php";
+	require_once "../../config.php";
 	
 	$author_name = "Kaia Mia Kalda";
 	//echo $author_name;
