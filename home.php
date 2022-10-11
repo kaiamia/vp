@@ -1,17 +1,21 @@
-<?php
-$author_name = "Kaia Mia Kalda"
-?>
-<!DOCTYPE html>
-<html>
-<head>
-	<meta charset="utf-8">
-	<title><?php echo $author_name; ?>, veebiprogrammeerimine</title>
-</head>
-<body>
-	<img src="pildid/vp_banner_gs.png" alt="Banner">
-	<h1><?php echo $author_name; ?>, veebiprogrammeerimine</h1>
+<?php 
+	session_start();
+	if(!isset($_SESSION["user_id"])){
+		//jõuga viiakse page.php lehele
+		header("Location: page.php");
+	    exit(); 
+	}
 	
-	<p>See leht on loodud õppetöö raames ja ei sisalda tõsist infot!</p>
-	<p>Õppetöö toimus <a href="https://www.tlu.ee">Tallinna Ülikoolis</a>, Digitehnoloogiate instituudis.</p>
-</body>
-</html>
+	//logime välja
+	if(isset($_GET["logout"])){
+		session_destroy();
+		header("Location: page.php");
+	    exit();
+	}
+		
+	require_once "header.php"; 
+?>
+<ul>
+	<li>Logi <a href="?logout=1">välja</a></li>
+</ul>
+<?php require_once "footer.php"; ?>

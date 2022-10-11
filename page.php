@@ -1,6 +1,8 @@
 <?php
+	//algatan sessiooni
+	session_start();
 	//loen sisse konfiguratsioonifaili
-	require_once "../../config.php";
+	require_once "fnc_user.php";
 	
 	$author_name = "Kaia Mia Kalda";
 	//echo $author_name;
@@ -168,43 +170,11 @@
 			$conn->close();
 		}
 	}
-	$email = null;
-	$email_error = null;
-	$password = null;
-    $password_error = null;
-	
-	if($_SERVER["REQUEST_METHOD"] === "POST"){
-		if(isset($_POST["user_data_submit"])){
+	$login_error = null;
+	if(isset($_POST["login_submit"])){
+        $login_error = sign_in($_POST["email_input"], $_POST["password_input"]);
+    }
 			
-			$email = $_POST["email_input"];
-			$password = $_POST["password_input"];
-			
-			$conn = new mysqli($server_host, $server_user_name, $server_password, $database);
-			//määrame suhtlemisel kasutatava kooditabeli
-			$conn->set_charset("utf8");
-			//valmistame ette SQL keeles päringu
-			$stmt =  $conn->prepare("SELECT password FROM vp_users_1 WHERE email = ?");
-			echo $conn->error;
-			$stmt->bind_param("s", $email);
-			$stmt->execute();
-			echo $stmt->error;
-            $stmt->bind_result($password_from_db);
-			
-			if($stmt->fetch()){
-				if(password_verify($password, $password_from_db)){
-				} else {
-					$password_error = "Salasõna on ebakorrektne!";
-			    }
-			} else {
-				$email_error = "Kasutajatunnus on ebakorrektne!";
-			}
-			$stmt->close();
-			$conn->close();
-			if(empty($email_error) and empty($password_error)){
-				header("Location: home.php");
-			}  
-		}//if submit lõppeb
-	}//if POST lõppeb		
 ?>
 <!DOCTYPE html>
 <html>
@@ -218,15 +188,15 @@
 	
 	<p>See leht on loodud õppetöö raames ja ei sisalda tõsist infot!</p>
 	<p>Õppetöö toimus <a href="https://www.tlu.ee">Tallinna Ülikoolis</a>, Digitehnoloogiate instituudis.</p>
-	
+	<hr>
+	<h2>Logi sisse</h2>
 	<form method="POST" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);?>">
-	  <label for="email_input">E-mail (kasutajatunnus):</label><br>
-	  <input type="email" name="email_input" id="email_input" value="<?php echo $email; ?>"><span><?php echo $email_error; ?></span><br>
-	  <label for="password_input">Salasõna (min 8 tähemärki):</label><br>
-	  <input name="password_input" id="password_input" type="password"><span><?php echo $password_error; ?></span><br>
-	  <input name="user_data_submit" type="submit" value="Submit">
+		<input type="email" name="email_input" placeholder="Kasutajatunnus ehk e-post">
+		<input type="password" name="password_input" placeholder="salasõna">
+		<input type="submit" name="login_submit" value="Logi sisse"><span><strong><?php echo $login_error; ?></strong></span>
 	</form>
-	
+	<p><a href = "add_user.php">Loo omale kasutaja</a></p>
+	<hr>
 	<p>Lehe avamise hetk: <?php echo $weekday_names_et[$weekday_now - 1] .", " .$full_time_now; ?>.</p>
 	<p>Praegu on <?php echo $part_of_day; ?>.</p>
 		
@@ -269,6 +239,4 @@
 	</form>
 	<hr>
 	<?php echo $photo_html ?>
-	<hr>
-</body>
-</html>
+	<?php require_once "footer.php"; ?>

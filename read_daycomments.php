@@ -1,5 +1,5 @@
 <?php
-	require_once "../config.php";
+	require_once "../../config.php";
 	
 	//loome andmebaasiühenduse
 	$conn = new mysqli($server_host, $server_user_name, $server_password, $database);
