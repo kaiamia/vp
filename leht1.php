@@ -38,7 +38,7 @@
 		} else {
 			$director_error = "Rezissöör jäi lisamata!";
 		}
-		if(empty($title_error, $year_error, $duration_error, $genre_error, $studio_error, $director_error)){
+		if(empty($title_error) and empty($year_error) and empty($duration_error) and empty($genre_error) and empty($studio_error) and empty($director_error)){
 			//loome andmebaasiühenduse
 			$conn = new mysqli($server_host, $server_user_name, $server_password, $database);
 			//määrame suhtlemisel kasutatava kooditabeli
@@ -54,6 +54,12 @@
 		}
 	}
 	
+	//logime välja
+	if(isset($_GET["logout"])){
+		session_destroy();
+		header("Location: page.php");
+	    exit();
+	}
 	
 ?>
 <!DOCTYPE html>
@@ -87,6 +93,8 @@
         <input type="submit" name="film_submit" value="Salvesta">
     </form>
 
-
+<ul>
+	<li>Logi <a href="?logout=1">välja</a></li>
+</ul>
 </body>
 </html>

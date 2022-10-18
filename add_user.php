@@ -105,7 +105,11 @@
 					$birth_day = null;
 					$birth_date = null;
 				} else {
-					$notice = "Midagi läks valesti";
+					if($notice == 2){
+						$notice = "Selline kasutaja on juba olemas!";
+					} else {
+						$notice = "Uue kasutaja loomisel tekkis tõrge!";
+					}
 				}
 			}
 		}//if submit lõppeb

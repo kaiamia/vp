@@ -14,6 +14,13 @@
 	echo $stmt->error;
 	$stmt->close();
 	$conn->close();
+	
+	//logime välja
+	if(isset($_GET["logout"])){
+		session_destroy();
+		header("Location: page.php");
+	    exit();
+	}
 ?>
 <!DOCTYPE html>
 <html>
@@ -25,6 +32,10 @@
 		<li>Źanr: <?php echo $genre_from_db ?></li>
 		<li>Tootja: <?php echo $studio_from_db ?></li>
 		<li>Lavastaja: <?php echo $director_from_db ?></li>
+</ul>
+
+<ul>
+	<li>Logi <a href="?logout=1">välja</a></li>
 </ul>
 
 </body>
