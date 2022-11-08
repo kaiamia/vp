@@ -3,7 +3,7 @@
 	session_start();
 	//loen sisse konfiguratsioonifaili
 	require_once "fnc_user.php";
-	
+	require_once "fnc_gallery.php";
 	$author_name = "Kaia Mia Kalda";
 	//echo $author_name;
 	$full_time_now = date("d.m.Y H:i:s");
@@ -196,6 +196,11 @@
 		<input type="submit" name="login_submit" value="Logi sisse"><span><strong><?php echo $login_error; ?></strong></span>
 	</form>
 	<p><a href = "add_user.php">Loo omale kasutaja</a></p>
+	<hr>
+	<h2>Avalik foto</h2>
+	<div class="gallery">
+	<?php echo read_public_photo(3, 1); ?>
+	</div>
 	<hr>
 	<p>Lehe avamise hetk: <?php echo $weekday_names_et[$weekday_now - 1] .", " .$full_time_now; ?>.</p>
 	<p>Praegu on <?php echo $part_of_day; ?>.</p>

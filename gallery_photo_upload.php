@@ -1,4 +1,5 @@
 <?php 
+	require_once "../../config.php";
 	session_start();
 	if(!isset($_SESSION["user_id"])){
 		//jõuga viiakse page.php lehele
@@ -13,20 +14,20 @@
 	    exit();
 	}
 	require_once "fnc_photo_upload.php";
-	
+	require_once "fnc_general.php";
 	//kontrollin pildi valikut
 	$file_type = null;
 	$photo_error = null;
-	$photo_file_size_limit = 1.5 * 1024 * 1024;
-	$photo_name_prefix = "vp_";
 	$file_name = null;
-	$normal_photo_max_w = 800;
-	$normal_photo_max_h = 450;
-	
+	$alt = null;
+	$privacy = 1;
+
 	if($_SERVER["REQUEST_METHOD"] == "POST"){
 		if(isset($_POST["photo_submit"])){
+			$alt = test_input($_POST["alt_input"]);
+			$privacy = filter_var($_POST["privacy_input"], FILTER_VALIDATE_INT);
 			//var_dump($_POST);
-			var_dump($_FILES["photo_input"]);
+			//var_dump($_FILES["photo_input"]);
 			//kas on üldse pildifail ja mis tüüpi
 			if(isset($_FILES["photo_input"]["tmp_name"]) and !empty($_FILES["photo_input"]["tmp_name"])){
 				$file_type = check_file_type($_FILES["photo_input"]["tmp_name"]);
@@ -42,7 +43,6 @@
 					$photo_error = "Valitud fail on liiga suur!";
 				}
 			}
-			
 			if(empty($photo_error)){
 				//loon uue failinime
 				$file_name = create_filename($photo_name_prefix, $file_type);
@@ -52,11 +52,28 @@
 				//teeme väiksemaks
 				$normal_photo = resize_photo($temp_photo, $normal_photo_max_w, $normal_photo_max_h);
 				//salvestan väiksemaks tehtud pildi
-				save_photo($normal_photo, "photo_upload_normal/" .$file_name, $file_type);
-				
-				//tõstan ajutise pildifaili soovitud kohta
-				//move_uploaded_file($_FILES["photo_input"]["tmp_name"],"photo_upload_original/" .$_FILES["photo_input"]["name"]);
-				move_uploaded_file($_FILES["photo_input"]["tmp_name"],"photo_upload_original/" .$file_name);
+				$photo_error = save_photo($normal_photo, $gallery_photo_normal_folder .$file_name, $file_type);
+				if(empty($photo_error)){
+					//teeme pisipildi (thumbnail)
+					$thumbnail = resize_photo($temp_photo, $thumbnail_photo_w, $thumbnail_photo_h, false);
+					$photo_error = save_photo($thumbnail, $gallery_photo_thumbnail_folder .$file_name, $file_type);
+				}	
+				if(empty($photo_error)){
+					// ajutine fail: $_FILES["photo_input"]["tmp_name"]
+					if(move_uploaded_file($_FILES["photo_input"]["tmp_name"], $gallery_photo_original_folder .$file_name) == false){
+						$photo_error = 1;
+					}
+				}
+				if(empty($photo_error)){
+					$photo_error = store_photo_data($file_name, $alt, $privacy);
+				}
+				if(empty($photo_error)){
+					$photo_error = "Pilt edukalt üles laetud!";
+					$alt = null;
+					$privacy = 1;
+				} else {
+					$photo_error = "Pildi üleslaadimisel tekkis tõrkeid!";
+				}
 			}//if empty error
 		}//if photo_submit
 	}//if POST
@@ -84,7 +101,7 @@
 		<label for="privacy_input_2">Sisseloginud kasutajatele</label>
 		<br>
 		<input type="radio" name="privacy_input" id="privacy_input_3" value="3">
-		<label for="privacy_input_3">Avalik)</label>
+		<label for="privacy_input_3">Avalik</label>
 		<br>
 		<input type="submit" name="photo_submit" id="photo_submit" value="Lae üles">
 		<span><?php echo $photo_error; ?></span>

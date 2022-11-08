@@ -14,6 +14,7 @@
 	}
 	
 	require_once "header.php"; 
+	require_once "fnc_gallery.php";
 ?>
 <p>Sisse logitud: <?php echo $_SESSION["firstname"] ." " .$_SESSION["lastname"]; ?> </p>
 <ul>
@@ -21,5 +22,11 @@
 	<li><a href="leht1.php">Filmide lisamise lehele</a></li>
 	<li><a href="leht2.php">Filmide loetelu</a></li>
 	<li><a href="gallery_photo_upload.php">Fotode galeriisse laadimine</a></li>
+	<li><a href="gallery_public.php">Avalike fotode galerii</a></li>
+	<li><a href="gallery_own.php">Minu fotod</a></li>
 </ul>
+<h2>Avalik foto</h2>
+<div class="gallery">
+	<?php echo read_public_photo(3, 1); ?>
+</div>
 <?php require_once "footer.php"; ?>

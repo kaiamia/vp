@@ -3,6 +3,20 @@
 <head>
 	<meta charset="utf-8">
 	<title>Kaia Mia Kalda, veebiprogrammeerimine</title>
+	<style>
+		body {
+			background-color: <?php echo $_SESSION["user_bg_color"]; ?>;
+			color: <?php echo $_SESSION["user_txt_color"]; ?>;
+		}
+	</style>
+	<?php
+	if(isset($style_sheets) and !empty($style_sheets)){
+		//<link rel="stylesheet" href="styles/gallery.css">
+			foreach($style_sheets as $style){
+					echo '<link rel="stylesheet" href="' .$style .'">' ."\n";
+			}
+	}
+	?>
 </head>
 <body>
 	<img src="pildid/vp_banner_gs.png" alt="Banner">

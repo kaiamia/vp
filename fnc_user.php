@@ -25,6 +25,10 @@
 					$_SESSION["user_id"] = $id_from_db;
 					$_SESSION["firstname"] = $firstname_from_db;
 					$_SESSION["lastname"] = $lastname_from_db;
+					//määrame värvid
+					$_SESSION["user_bg_color"] = "#DDDDDD";
+					$_SESSION["user_txt_color"] = "#000099";
+					//värvide profiilist lugemine, kui on, tulevad uued väärtused, kui pole, jäävad need, mis otse kirjas
 					$stmt->close();
 					$conn->close();
 					header("Location: home.php");
@@ -72,4 +76,33 @@
 		$stmt->close();
 		$conn->close();
 		return $notice;
+	}
+	
+	function profile($user_description, $bg_color_input, $txt_color_input){
+		$profile_submit_error = null;
+		$conn = new mysqli($GLOBALS["server_host"], $GLOBALS["server_user_name"], $GLOBALS["server_password"], $GLOBALS["database"]);
+		$conn->set_charset("utf8");
+		$stmt = $conn->prepare("SELECT id FROM vp_userprofiles WHERE userid = ?");
+		echo  $conn->error;
+		$stmt->bind_param("s", $_SESSION["user_id"]);
+		$stmt->bind_result($id_from_db);
+		$stmt->execute();
+		if($stmt->fetch()){
+			//profiil on olemas
+			$stmt =  $conn->prepare("INSERT INTO vp_userprofiles (userid, description, bgcolor, txtcolor) VALUES(?,?,?,?)");
+			$stmt->bind_param("ssss", $_SESSION["user_id"], $user_description, $bg_color_input, $txt_color_input);
+			$stmt->execute();
+			$stmt->close();
+			$conn->close();
+			header("Location: home.php");
+			
+		} else {
+			$stmt =  $conn->prepare("UPDATE vp_userprofiles SET description = +, bgcolor = ?, txtcolor = ? WHERE userid = ?");
+			$stmt->bind_param("ssss", $user_description, $bg_color_input, $txt_color_input, $_SESSION["user_id"]);
+			$stmt->execute();
+			$stmt->close();
+			$conn->close();
+			header("Location: home.php");
+		}
+		return $profile_submit_error;
 	}
