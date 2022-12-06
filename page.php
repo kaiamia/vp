@@ -1,9 +1,21 @@
 <?php
 	//algatan sessiooni
-	session_start();
+	//session_start();
+	require_once "Classes/SessionManager.class.php";
+	SessionManager::sessionStart("vp", 0, "~kaldkaia/vp/", "greeny.cs.tlu.ee");
 	//loen sisse konfiguratsioonifaili
 	require_once "fnc_user.php";
 	require_once "fnc_gallery.php";
+	
+	//klass
+	/* require_once "Classes/Example.class.php";
+	$our_example = new Example(3);
+	$my_example = new Example(5);
+	echo $our_example->known_value ."<br>";
+	$my_example->add();
+	unset($our_example);
+	unset($my_example); */
+	
 	$author_name = "Kaia Mia Kalda";
 	//echo $author_name;
 	$full_time_now = date("d.m.Y H:i:s");
@@ -199,7 +211,7 @@
 	<hr>
 	<h2>Avalik foto</h2>
 	<div class="gallery">
-	<?php echo read_public_photo(3, 1); ?>
+	<?php echo show_latest_public_photo(); ?>
 	</div>
 	<hr>
 	<p>Lehe avamise hetk: <?php echo $weekday_names_et[$weekday_now - 1] .", " .$full_time_now; ?>.</p>

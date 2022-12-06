@@ -1,5 +1,7 @@
 <?php
-	session_start();
+	//session_start();
+	require_once "Classes/SessionManager.class.php";
+	SessionManager::sessionStart("vp", 0, "~kaldkaia/vp/", "greeny.cs.tlu.ee");
 	//kontrollin, kas oleme sisse loginud
 	if(!isset($_SESSION["user_id"])){
 		header("Location: page.php");
@@ -27,7 +29,8 @@
 	} else {
 		$page = $_GET["page"];
 	}
-	$style_sheets = ["styles/gallery.css"];
+	$style_sheets = ["styles/gallery.css", "styles/modal.css"];
+	$javascripts = ["javascript/modal.js"];
 	require_once "header.php";
 	
 	echo "<p>Sisse loginud: " .$_SESSION["firstname"] ." " .$_SESSION["lastname"] .".</p> \n";
@@ -36,6 +39,30 @@
 	<li><a href="?logout=1">Logi välja</a></li>
 	<li><a href="home.php">Avalehele</a></li>
 </ul>
+<hr>
+
+<!-- Modaalaken fotode suuremalt näitamiseks -->
+<dialog id="modal" class="modalarea">
+	<span id="modalclose" class="modalclose">&times;</span>
+	<div class="modalhorizontal">
+		<div class="modalvertical">
+			<p id="modalcaption"></p>
+			<img src="pildid/empty.png" alt="Galeriipilt" id="modalimage">
+			
+			<br>
+			<input id="rate1" name="rating" type="radio" value="1"><label for="rate1">1</label>
+			<input id="rate2" name="rating" type="radio" value="2"><label for="rate2">2</label>
+			<input id="rate3" name="rating" type="radio" value="3"><label for="rate3">3</label>
+			<input id="rate4" name="rating" type="radio" value="4"><label for="rate4">4</label>
+			<input id="rate5" name="rating" type="radio" value="5"><label for="rate5">5</label>
+			<button id="storeRating" type="button">Salvesta hinne</button>
+			<br>
+			<p id="avgrating"></p>
+				
+		</div>
+	</div>
+</dialog>
+
 <h2> Avalike piltide galerii</h2>
 <p>
 <?php

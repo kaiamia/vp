@@ -1,5 +1,7 @@
 <?php
-	session_start();
+	//session_start();
+	require_once "Classes/SessionManager.class.php";
+	SessionManager::sessionStart("vp", 0, "~kaldkaia/vp/", "greeny.cs.tlu.ee");
 	//kontrollin, kas oleme sisse loginud
 	if(!isset($_SESSION["user_id"])){
 		header("Location: page.php");

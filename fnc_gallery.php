@@ -9,12 +9,13 @@
         //$stmt = $conn->prepare("SELECT filename, alttext FROM vp_photos_1 WHERE privacy >= ? AND deleted IS NULL");
 		//LIMIT x  - mitu näidata
 		//LIMIT x,y  - mitu vahele jätta, mitu näidata 
-		$stmt = $conn->prepare("SELECT vp_photos.filename, vp_photos.alttext, vp_users_1.firstname, vp_users_1.lastname FROM vp_photos JOIN vp_users_1 ON vp_photos.userid >= vp_users_1.id WHERE vp_photos.privacy >= ? AND vp_photos.deleted IS NULL GROUP BY vp_photos.id ORDER BY vp_photos.id DESC LIMIT ?,?");
+		$stmt = $conn->prepare("SELECT vp_photos.id, vp_photos.filename, vp_photos.alttext, vp_users_1.firstname, vp_users_1.lastname FROM vp_photos JOIN vp_users_1 ON vp_photos.userid >= vp_users_1.id WHERE vp_photos.privacy >= ? AND vp_photos.deleted IS NULL GROUP BY vp_photos.id ORDER BY vp_photos.id DESC LIMIT ?,?");
         echo $conn->error;
         $stmt->bind_param("iii", $privacy, $skip, $limit);
-        $stmt->bind_result($filename_from_db, $alttext_from_db, $firstname_from_db, $lastname_from_db);
+        $stmt->bind_result($id_from_db, $filename_from_db, $alttext_from_db, $firstname_from_db, $lastname_from_db);
         $stmt->execute();
         while($stmt->fetch()){
+			//<img src="photo_upload_thumbnail/vp_16691123094281.jpg" alt="Tallinn" class="thumbs" data-filename="vp_16691123094281.jpg" data-id="43">
 			$photo_html .= '<div class="thumbgallery">' ."\n";
 			$photo_html .= '<img src="' .$GLOBALS["gallery_photo_thumbnail_folder"] .$filename_from_db .'" alt="';
             if(empty($alttext_from_db)){
@@ -22,7 +23,7 @@
             } else {
                 $photo_html .= $alttext_from_db;
             }
-            $photo_html .= '" class="thumbs">' ."\n";
+            $photo_html .= '" class="thumbs" data-filename="' .$filename_from_db .'" data-id="' .$id_from_db .'">' ."\n";
             $photo_html .= "<p>" .$firstname_from_db ." " .$lastname_from_db ."</p> \n";
 			$photo_html .= "</div> \n";
         }
@@ -30,34 +31,62 @@
 		$conn->close();
 		return $photo_html;
     }
-	function read_public_photo($privacy, $limit){
+	// function read_public_photo($privacy, $limit){
+        // $photo_html = null;
+        // $conn = new mysqli($GLOBALS["server_host"], $GLOBALS["server_user_name"], $GLOBALS["server_password"], $GLOBALS["database"]);
+		// $conn->set_charset("utf8");
+        //$stmt = $conn->prepare("SELECT filename, alttext FROM vp_photos_1 WHERE privacy >= ? AND deleted IS NULL");
+		// LIMIT x  - mitu näidata
+		// LIMIT x,y  - mitu vahele jätta, mitu näidata 
+		// $stmt = $conn->prepare("SELECT vp_photos.id, vp_photos.alttext, vp_users_1.firstname, vp_users_1.lastname FROM vp_photos JOIN vp_users_1 ON vp_photos.userid >= vp_users_1.id WHERE vp_photos.privacy >= ? AND vp_photos.deleted IS NULL GROUP BY vp_photos.id ORDER BY vp_photos.id DESC LIMIT ?,?");
+        // echo $conn->error;
+        // $stmt->bind_param("iii", $privacy, $skip, $limit);
+        // $stmt->bind_result($filename_from_db, $alttext_from_db, $firstname_from_db, $lastname_from_db);
+        // $stmt->execute();
+        // while($stmt->fetch()){
+			// $photo_html .= '<div class="gallery">' ."\n";
+			// $photo_html .= '<img src="' .$GLOBALS["gallery_photo_normal_folder"] .$filename_from_db .'" alt="';
+            // if(empty($alttext_from_db)){
+                // $photo_html .= "Üleslaetud foto";
+            // } else {
+                // $photo_html .= $alttext_from_db;
+            // }
+            // $photo_html .= '" class="photos">' ."\n";
+            //$photo_html .= "<p>" .$firstname_from_db ." " .$lastname_from_db ."</p> \n";
+			// $photo_html .= "</div> \n";
+        // }
+        // $stmt->close();
+		// $conn->close();
+		// return $photo_html;
+    // }
+	
+	function show_latest_public_photo(){
         $photo_html = null;
+        $privacy = 3;
         $conn = new mysqli($GLOBALS["server_host"], $GLOBALS["server_user_name"], $GLOBALS["server_password"], $GLOBALS["database"]);
 		$conn->set_charset("utf8");
-        //$stmt = $conn->prepare("SELECT filename, alttext FROM vp_photos_1 WHERE privacy >= ? AND deleted IS NULL");
-		//LIMIT x  - mitu näidata
-		//LIMIT x,y  - mitu vahele jätta, mitu näidata 
-		$stmt = $conn->prepare("SELECT vp_photos.filename, vp_photos.alttext, vp_users_1.firstname, vp_users_1.lastname FROM vp_photos JOIN vp_users_1 ON vp_photos.userid >= vp_users_1.id WHERE vp_photos.privacy >= ? AND vp_photos.deleted IS NULL GROUP BY vp_photos.id ORDER BY vp_photos.id DESC LIMIT ?,?");
+        $stmt = $conn->prepare("SELECT id, alttext FROM vp_photos WHERE id = (SELECT MAX(id) FROM vp_photos WHERE privacy = ? AND deleted IS NULL)");
         echo $conn->error;
-        $stmt->bind_param("iii", $privacy, $skip, $limit);
-        $stmt->bind_result($filename_from_db, $alttext_from_db, $firstname_from_db, $lastname_from_db);
+        $stmt->bind_param("i", $privacy);
+        $stmt->bind_result($id_from_db, $alttext_from_db);
         $stmt->execute();
-        while($stmt->fetch()){
-			$photo_html .= '<div class="gallery">' ."\n";
-			$photo_html .= '<img src="' .$GLOBALS["gallery_photo_normal_folder"] .$filename_from_db .'" alt="';
+        if($stmt->fetch()){
+            //<img src="kataloog/fail" alt="tekst">
+            $photo_html = '<img src="show_public_photo.php?photo=' .$id_from_db .'" alt="';
             if(empty($alttext_from_db)){
                 $photo_html .= "Üleslaetud foto";
             } else {
                 $photo_html .= $alttext_from_db;
             }
-            $photo_html .= '" class="photos">' ."\n";
-            //$photo_html .= "<p>" .$firstname_from_db ." " .$lastname_from_db ."</p> \n";
-			$photo_html .= "</div> \n";
+            $photo_html .= '">' ."\n";
+        } else {
+            $photo_html = "<p>Kahjuks pole ühtegi avalikku fotot üles laetud!</p>";
         }
         $stmt->close();
 		$conn->close();
 		return $photo_html;
     }
+	
 	function count_photos($privacy){
         $photo_count = 0;
         $conn = new mysqli($GLOBALS["server_host"], $GLOBALS["server_user_name"], $GLOBALS["server_password"], $GLOBALS["database"]);
@@ -205,4 +234,34 @@
 		}
 		header("Location: gallery_own.php");
 		exit();
+	}
+	function show_profile_picture(){
+		$photo_html = null;
+        $conn = new mysqli($GLOBALS["server_host"], $GLOBALS["server_user_name"], $GLOBALS["server_password"], $GLOBALS["database"]);
+		$conn->set_charset("utf8");
+        // $stmt = $conn->prepare("SELECT filename FROM vp_userprofilepictures WHERE userid = ? AND deleted = NULL ORDER BY id DESC LIMIT 1");
+		$stmt = $conn->prepare("SELECT picture FROM vp_userprofiles WHERE userid = ?");
+        echo $conn->error;
+        $stmt->bind_param("i", $_SESSION["user_id"]);
+        $stmt->bind_result($picture_id);
+        $stmt->execute();
+        if($stmt->fetch()){
+			$photo_html = '<img src="show_profile_picture.php?photo=' .$picture_id .'">' ."\n";
+            //<img src="kataloog/fail" alt="tekst">
+            // $photo_html .= '<img src="' .$GLOBALS["gallery_photo_profile_folder"] .$filename_from_db;
+            // $photo_html .= '">' ."\n";
+			// $stmt->close();
+			// $conn->close();
+        } else {
+			$stmt = $conn->prepare("SELECT firstname, lastname FROM vp_users_1 WHERE id = ?");
+			echo $conn->error;
+			$stmt->bind_param("i", $_SESSION["user_id"]);
+			$stmt->bind_result($firstname_from_db, $lastname_from_db);
+			$stmt->execute();
+			$stmt->fetch();
+			$photo_html = "<p>" .$firstname_from_db ." " .$lastname_from_db ." profiilipilt";
+		}
+        $stmt->close();
+		$conn->close();
+		return $photo_html;
 	}

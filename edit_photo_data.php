@@ -1,5 +1,7 @@
 <?php 
-	require_once "../../config.php";
+	//require_once "../../config.php";
+	require_once "Classes/SessionManager.class.php";
+	SessionManager::sessionStart("vp", 0, "~kaldkaia/vp/", "greeny.cs.tlu.ee");
 	session_start();
 	if(!isset($_SESSION["user_id"])){
 		//jõuga viiakse page.php lehele

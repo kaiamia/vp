@@ -12,9 +12,16 @@
 	<?php
 	if(isset($style_sheets) and !empty($style_sheets)){
 		//<link rel="stylesheet" href="styles/gallery.css">
-			foreach($style_sheets as $style){
-					echo '<link rel="stylesheet" href="' .$style .'">' ."\n";
-			}
+		foreach($style_sheets as $style){
+			echo '<link rel="stylesheet" href="' .$style .'">' ."\n";
+		}
+	}
+	
+	if(isset($javascripts) and !empty($javascripts)){
+		//<script> src="javascript.js" defer</script>
+		foreach($javascripts as $js){
+			echo '<script src="' .$js .'" defer></script>' ."\n";
+		}
 	}
 	?>
 </head>

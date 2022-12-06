@@ -1,29 +1,29 @@
 <?php
 require_once "../../config.php";
-function check_file_type($file){
-	$file_type = 0;
-	$image_check = getimagesize($file);
-	if($image_check !== false){
-		if($image_check["mime"] == "image/jpeg"){
-			$file_type = "jpg";
-		}
-		if($image_check["mime"] == "image/png"){
-			$file_type = "png";
-		}
-		if($image_check["mime"] == "image/gif"){
-			$file_type = "gif";
-		}
-	}
-	return $file_type;
+// function check_file_type($file){
+	// $file_type = 0;
+	// $image_check = getimagesize($file);
+	// if($image_check !== false){
+		// if($image_check["mime"] == "image/jpeg"){
+			// $file_type = "jpg";
+		// }
+		// if($image_check["mime"] == "image/png"){
+			// $file_type = "png";
+		// }
+		// if($image_check["mime"] == "image/gif"){
+			// $file_type = "gif";
+		// }
+	// }
+	// return $file_type;
+// } 
+//klassi
+// function create_filename($photo_name_prefix, $file_type){
+	// $timestamp = microtime(1) * 10000;
+	// return $photo_name_prefix .$timestamp ."." .$file_type;
+// }
 
-}
-
-function create_filename($photo_name_prefix, $file_type){
-	$timestamp = microtime(1) * 10000;
-	return $photo_name_prefix .$timestamp ."." .$file_type;
-}
-
-function create_image($file, $file_type){
+//klassi
+/* function create_image($file, $file_type){
 	$temp_image = null;
 	if($file_type == "jpg"){
 		$temp_image = imagecreatefromjpeg($file);
@@ -35,9 +35,10 @@ function create_image($file, $file_type){
 		$temp_image = imagecreatefromgif($file);
 	}
 	return $temp_image;
-}
+} */
 
-function resize_photo($temp_photo, $w, $h, $keep_orig_proportion = true){
+//klassi
+/* function resize_photo($temp_photo, $w, $h, $keep_orig_proportion = true){
 	$image_w = imagesx($temp_photo);
 	$image_h = imagesy($temp_photo);
 	$new_w = $w;
@@ -84,7 +85,7 @@ function resize_photo($temp_photo, $w, $h, $keep_orig_proportion = true){
 	//teeme originaalist väiksele koopia
 	imagecopyresampled($temp_image, $temp_photo, 0, 0, $cut_x, $cut_y, $new_w, $new_h, $cut_size_w, $cut_size_h);
 	return $temp_image;
-}
+} */
 /*function resize_photo($temp_photo, $normal_photo_max_w, $normal_photo_max_h){
 	//originaalpildi suurus
 	$image_w = imagesx($temp_photo);
@@ -115,7 +116,8 @@ function create_thumbnail($temp_image){
 	return $temp_image;
 }
 */
-function save_photo($image, $target, $file_type){
+//klassi
+/* function save_photo($image, $target, $file_type){
 	$error = null;
 	if($file_type == "jpg"){
 		if(imagejpeg($image, $target, 95) == false){
@@ -133,7 +135,7 @@ function save_photo($image, $target, $file_type){
 		}
 	}
 	return $error;
-}
+} */
 function store_photo_data($file_name, $alt, $privacy){
 	$notice = null;
 	$conn = new mysqli($GLOBALS["server_host"], $GLOBALS["server_user_name"], $GLOBALS["server_password"], $GLOBALS["database"]);
@@ -142,9 +144,46 @@ function store_photo_data($file_name, $alt, $privacy){
 	echo $conn->error;
 	$stmt->bind_param("issi", $_SESSION["user_id"], $file_name, $alt, $privacy);
 	if($stmt->execute() == false){
-	  $notice = 1;
+	  $notice = "Pildi andmebaasi salvestamine ebaõnnestus!";
 	}
 	$stmt->close();
 	$conn->close();
+	return $notice;
+}
+
+function store_profile_photo_data($file_name){
+	$notice = null;
+	$conn = new mysqli($GLOBALS["server_host"], $GLOBALS["server_user_name"], $GLOBALS["server_password"], $GLOBALS["database"]);
+	$conn->set_charset("utf8");
+	$stmt = $conn->prepare("INSERT INTO vp_userprofilepictures (userid, filename) VALUES (?, ?)");
+	echo $conn->error;
+	$stmt->bind_param("is", $_SESSION["user_id"], $file_name);
+	$stmt->execute();
+	$photo_id = $conn->insert_id;
+	$stmt->close();
+	$stmt = $conn->prepare("SELECT id FROM vp_userprofiles WHERE userid = ?");
+	echo  $conn->error;
+	$stmt->bind_param("s", $_SESSION["user_id"]);
+	$stmt->bind_result($id_from_db);
+	$stmt->execute();
+	if($stmt->fetch()){
+		//profiil on olemas
+		$stmt->close();
+		$stmt =  $conn->prepare("UPDATE vp_userprofiles SET picture = ? WHERE userid = ?");
+		echo $conn->error;
+		$stmt->bind_param("ss", $photo_id, $_SESSION["user_id"]);
+		$stmt->execute();
+		$stmt->close();
+		$conn->close();
+		
+	} else {
+		$stmt->close();
+		$stmt =  $conn->prepare("INSERT INTO vp_userprofiles (userid, picture) VALUES(?,?)");
+		echo $conn->error;
+		$stmt->bind_param("ss", $_SESSION["user_id"], $photo_id);
+		$stmt->execute();
+		$stmt->close();
+		$conn->close();
+	}
 	return $notice;
 }

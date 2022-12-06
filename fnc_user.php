@@ -89,20 +89,28 @@
 		$stmt->execute();
 		if($stmt->fetch()){
 			//profiil on olemas
-			$stmt =  $conn->prepare("INSERT INTO vp_userprofiles (userid, description, bgcolor, txtcolor) VALUES(?,?,?,?)");
-			$stmt->bind_param("ssss", $_SESSION["user_id"], $user_description, $bg_color_input, $txt_color_input);
+			$stmt->close();
+			$stmt =  $conn->prepare("UPDATE vp_userprofiles SET description = ?, bgcolor = ?, txtcolor = ? WHERE userid = ?");
+			echo $conn->error;
+			$stmt->bind_param("ssss", $user_description, $bg_color_input, $txt_color_input, $_SESSION["user_id"]);
+			$_SESSION["user_bg_color"] = $bg_color_input;
+			$_SESSION["user_txt_color"] = $txt_color_input;
 			$stmt->execute();
 			$stmt->close();
 			$conn->close();
-			header("Location: home.php");
+			//header("Location: home.php");
 			
 		} else {
-			$stmt =  $conn->prepare("UPDATE vp_userprofiles SET description = +, bgcolor = ?, txtcolor = ? WHERE userid = ?");
-			$stmt->bind_param("ssss", $user_description, $bg_color_input, $txt_color_input, $_SESSION["user_id"]);
+			$stmt->close();
+			$stmt =  $conn->prepare("INSERT INTO vp_userprofiles (userid, description, bgcolor, txtcolor) VALUES(?,?,?,?)");
+			echo $conn->error;
+			$stmt->bind_param("ssss", $_SESSION["user_id"], $user_description, $bg_color_input, $txt_color_input);
+			$_SESSION["user_bg_color"] = $bg_color_input;
+			$_SESSION["user_txt_color"] = $txt_color_input;
 			$stmt->execute();
 			$stmt->close();
 			$conn->close();
-			header("Location: home.php");
+			//header("Location: home.php");
 		}
 		return $profile_submit_error;
 	}
